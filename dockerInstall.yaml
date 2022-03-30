@@ -1,0 +1,53 @@
+- hosts: lampstack
+  remote_user: root
+  become: yes
+  tasks:
+  - name: Install Docker
+    yum:
+      name: docker
+      state: installed
+
+  - name: Install Docker-Compose
+    get_url:
+      url: https://github.com/docker/compose/releases/latest/download/docker-compose-Linux-{{lookup('pipe','uname -m')}}
+      dest: /usr/local/bin/docker-compose
+      mode: +x
+
+  - name: Start Docker Demon
+    service:
+      name: docker
+      state: started
+
+  - name: Making new Directory
+    command: mkdir /home/DockerTask
+    args:
+      executable: /bin/bash 
+
+  - name: Copying Dockerfile to host
+    ansible.builtin.copy:
+      src: /home/rodaina/Documents/Ansible/AnsibleTask/Dockerfile
+      dest: /home/DockerTask
+      follow: yes
+    
+  - name: Copying DockerCompose to host
+    ansible.builtin.copy:
+      src: /home/rodaina/Documents/Ansible/AnsibleTask/container.yaml
+      dest: /home/DockerTask
+      follow: yes
+
+  - name: Copying PHP file where dockerfile located
+    ansible.builtin.copy:
+      src: /home/rodaina/Documents/Ansible/AnsibleTask/test.php
+      dest: /home/DockerTask
+      follow: yes
+
+  - name: Building the Image from Dockerfile and run container 
+    command:
+        cd /home/DockerTask
+        docker build -t lampimage:1.0 .
+        docker-compose -f container.yaml
+    args:
+      executable: /bin/bash 
+
+  
+ 

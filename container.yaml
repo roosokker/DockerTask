@@ -1,0 +1,6 @@
+Version: '3'
+Services:
+  - LampStack:
+      image: lampimage:1.0
+      ports:
+        - 8081:80
